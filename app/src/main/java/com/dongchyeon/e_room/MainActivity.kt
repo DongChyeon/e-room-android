@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
                         request: WebResourceRequest?,
                         errorResponse: WebResourceResponse?
                     ) {
-                        Log.e("e-room", "Http Error : ${errorResponse?.data.toString()}")
+                        Log.e("e-room", "Http Error : $errorResponse")
                     }
 
                     override fun onReceivedSslError(
