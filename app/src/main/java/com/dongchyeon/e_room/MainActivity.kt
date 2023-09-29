@@ -1,18 +1,21 @@
 package com.dongchyeon.e_room
 
 import android.Manifest
+import android.content.ActivityNotFoundException
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.net.http.SslError
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.webkit.ConsoleMessage
-import android.webkit.CookieManager
 import android.webkit.GeolocationPermissions
 import android.webkit.SslErrorHandler
 import android.webkit.WebChromeClient
@@ -43,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
-        CookieManager.getInstance()
 
         webView = binding.webview
         if (isNetworkConnected()) {
@@ -99,7 +101,7 @@ class MainActivity : AppCompatActivity() {
 
                 settings.javaScriptEnabled = true
                 settings.domStorageEnabled = true
-                settings.userAgentString = "Chrome/56.0.0.0 Mobile"
+                settings.userAgentString = System.getProperty("http.agent")?.plus(applicationContext.packageName)
 
                 settings.setGeolocationEnabled(true)
             }
@@ -143,6 +145,17 @@ class MainActivity : AppCompatActivity() {
                     "위치 권한을 허용해야 현재 위치를 알 수 있습니다.",
                     Toast.LENGTH_LONG
                 ).show()
+
+                try {
+                    val intent =
+                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).setData(Uri.parse("package:$packageName"))
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                } catch (e: ActivityNotFoundException) {
+                    e.printStackTrace()
+                    val intent = Intent(Settings.ACTION_MANAGE_APPLICATIONS_SETTINGS)
+                    startActivity(intent)
+                }
             }
         }
     }
